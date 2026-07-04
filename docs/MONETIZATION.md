@@ -3,7 +3,7 @@
 ## Pricing Suggestion
 
 - Starter: Free
-- Pro: 9 EUR per month
+- Pro: 5 EUR per month
 
 ## PayPal Setup
 

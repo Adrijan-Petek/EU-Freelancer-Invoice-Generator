@@ -89,7 +89,7 @@ const plans: Plan[] = [
   },
   {
     name: "Pro",
-    price: "EUR 9 / month",
+    price: "EUR 5 / month",
     description: "Built for growth with automation and premium features.",
     features: [
       "Cloud sync",

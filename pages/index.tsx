@@ -13,6 +13,7 @@ import { exportInvoicesCsv } from "../utils/csv";
 import { downloadInvoicePdf } from "../utils/pdf";
 
 type InvoiceInput = Omit<InvoiceDraft, "vatResult" | "subtotal" | "vatAmount" | "total">;
+const LOCAL_INVOICES_KEY = "invoicesLocal";
 
 function createEmptyDraft(language: Language): InvoiceInput {
   const today = dayjs().format("YYYY-MM-DD");
@@ -72,16 +73,55 @@ export default function Home(): JSX.Element {
     setDraft((prev) => ({ ...prev, language }));
   }, [language]);
 
+  function readLocalInvoices(): InvoiceRecord[] {
+    if (typeof window === "undefined") {
+      return [];
+    }
+
+    try {
+      const raw = localStorage.getItem(LOCAL_INVOICES_KEY);
+      const parsed = raw ? (JSON.parse(raw) as InvoiceRecord[]) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  function writeLocalInvoices(nextInvoices: InvoiceRecord[]): void {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.setItem(LOCAL_INVOICES_KEY, JSON.stringify(nextInvoices));
+  }
+
+  function generateLocalInvoiceNumber(existing: InvoiceRecord[]): string {
+    const year = new Date().getFullYear();
+    const prefix = `INV-${year}-`;
+    const last = existing
+      .filter((invoice) => (invoice.invoiceNumber || "").startsWith(prefix))
+      .map((invoice) => Number((invoice.invoiceNumber || "").replace(prefix, "")))
+      .filter((value) => Number.isFinite(value))
+      .sort((a, b) => b - a)[0];
+
+    return `${prefix}${String((last ?? 0) + 1).padStart(4, "0")}`;
+  }
+
   async function fetchInvoices(): Promise<void> {
     setIsLoading(true);
     setError("");
     try {
       const response = await fetch("/api/invoices");
+      if (!response.ok) {
+        throw new Error("API unavailable");
+      }
       const json = await response.json();
       setInvoices(json.data || []);
     } catch (fetchError) {
       console.error(fetchError);
-      setError("Failed to load invoices.");
+      setInvoices(readLocalInvoices());
+      setError("API unavailable. Using local browser storage mode.");
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +129,7 @@ export default function Home(): JSX.Element {
 
   useEffect(() => {
     fetchInvoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function toggleDarkMode(): void {
@@ -119,7 +160,43 @@ export default function Home(): JSX.Element {
       setDraft(createEmptyDraft(language));
     } catch (saveError) {
       console.error(saveError);
-      setError("Could not save invoice.");
+      const local = readLocalInvoices();
+      const now = new Date().toISOString();
+      const enriched = enrichInvoiceDraft({
+        ...draft,
+        invoiceNumber: draft.invoiceNumber || generateLocalInvoiceNumber(local)
+      });
+
+      let nextInvoices: InvoiceRecord[];
+      if (selectedId !== null) {
+        nextInvoices = local.map((invoice) =>
+          invoice.id === selectedId
+            ? {
+                ...enriched,
+                id: selectedId,
+                createdAt: invoice.createdAt,
+                updatedAt: now
+              }
+            : invoice
+        );
+      } else {
+        const nextId = local.reduce((max, item) => Math.max(max, item.id), 0) + 1;
+        nextInvoices = [
+          {
+            ...enriched,
+            id: nextId,
+            createdAt: now,
+            updatedAt: now
+          },
+          ...local
+        ];
+      }
+
+      writeLocalInvoices(nextInvoices);
+      setInvoices(nextInvoices);
+      setSelectedId(null);
+      setDraft(createEmptyDraft(language));
+      setError("Saved locally in browser storage.");
     }
   }
 
@@ -168,7 +245,10 @@ export default function Home(): JSX.Element {
       await fetchInvoices();
     } catch (deleteError) {
       console.error(deleteError);
-      setError("Could not delete invoice.");
+      const nextInvoices = readLocalInvoices().filter((invoice) => invoice.id !== id);
+      writeLocalInvoices(nextInvoices);
+      setInvoices(nextInvoices);
+      setError("Deleted in local browser storage.");
     }
   }
 

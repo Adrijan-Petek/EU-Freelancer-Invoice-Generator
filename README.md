@@ -4,6 +4,22 @@ Professional EU-compliant invoicing for freelancers, developers, designers, and 
 
 Create invoices in seconds, apply the correct VAT logic automatically, export PDF invoices, and track revenue from a clean dashboard.
 
+## App Preview
+
+![EU Freelancer Invoice Generator screenshot](program.png)
+
+## Live Demo
+
+After GitHub Pages deployment finishes, your public demo will be available at:
+
+https://adrijan-petek.github.io/EU-Freelancer-Invoice-Generator/
+
+To enable it the first time in GitHub:
+
+1. Open repository Settings > Pages
+2. Set Source to GitHub Actions
+3. Push to main (or run the Deploy to GitHub Pages workflow manually)
+
 ## Why This Project
 
 EU freelancers often struggle with VAT complexity and expensive accounting tools. This app is a lightweight alternative focused on the practical parts you need every day.
@@ -93,6 +109,7 @@ npm run start
 - Database file: data/invoices.json
 - Created automatically on first run
 - Ignored in git to avoid committing private invoice data
+- On GitHub Pages demo, invoices are saved in browser localStorage because API routes are not available on static hosting
 
 ## GitHub Upload Steps
 
@@ -122,7 +139,7 @@ Suggested free plan:
 - VAT logic
 - PDF and CSV export
 
-Suggested Pro plan at 5 to 10 EUR per month:
+Suggested Pro plan at 5 EUR per month:
 
 - Cloud sync and backups
 - Multi-currency support
