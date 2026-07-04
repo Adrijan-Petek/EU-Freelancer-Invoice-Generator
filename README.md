@@ -140,6 +140,20 @@ To start charging customers:
 4. Restrict Pro features based on active subscription state.
 5. Add a pricing page and checkout buttons.
 
+Current app support:
+
+- Direct PayPal subscription button on the pricing page.
+- Optional checkout links for Starter and Pro.
+
+Add the following variables to .env.local:
+
+```env
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
+NEXT_PUBLIC_PAYPAL_PLAN_ID=your_subscription_plan_id
+NEXT_PUBLIC_PAYPAL_STARTER_URL=https://your-paypal-link
+NEXT_PUBLIC_PAYPAL_PRO_URL=https://your-paypal-link
+```
+
 Recommended: keep payment credentials in environment variables and never commit secrets.
 
 ## Roadmap

@@ -1,5 +1,68 @@
 import Head from "next/head";
 import Link from "next/link";
+import Script from "next/script";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (config: {
+        style?: {
+          shape?: "rect" | "pill";
+          color?: "gold" | "blue" | "silver" | "white" | "black";
+          layout?: "vertical" | "horizontal";
+          label?: "paypal" | "checkout" | "buynow" | "pay" | "subscribe";
+        };
+        createSubscription?: (data: unknown, actions: { subscription: { create: (input: { plan_id: string }) => Promise<string> } }) => Promise<string>;
+        onApprove?: (data: { subscriptionID?: string }) => void;
+        onError?: (error: unknown) => void;
+      }) => {
+        render: (selector: string) => Promise<void>;
+      };
+    };
+  }
+}
+
+const paypalClientId =
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ||
+  "AWJNE5UKIuVBGNz59lTc_X5TC82R4VHs-sPz2A0cT9qPbNApnvd8fBQwFK4SCMg4nsuM44Tc7TC0kSfC";
+const paypalPlanId = process.env.NEXT_PUBLIC_PAYPAL_PLAN_ID || "P-39E65640L2122282RNJEQJAY";
+const paypalContainerId = `paypal-button-container-${paypalPlanId}`;
+
+function renderPaypalSubscriptionButton(): void {
+  const paypal = window.paypal;
+  const container = document.getElementById(paypalContainerId);
+
+  if (!paypal || !container || container.childElementCount > 0) {
+    return;
+  }
+
+  paypal
+    .Buttons({
+      style: {
+        shape: "rect",
+        color: "gold",
+        layout: "vertical",
+        label: "subscribe"
+      },
+      createSubscription: function (_, actions) {
+        return actions.subscription.create({
+          plan_id: paypalPlanId
+        });
+      },
+      onApprove: function (data) {
+        const subscriptionId = data.subscriptionID || "Subscription approved";
+        alert(subscriptionId);
+      },
+      onError: function (error) {
+        console.error("PayPal subscription error", error);
+      }
+    })
+    .render(`#${paypalContainerId}`)
+    .catch((error: unknown) => {
+      console.error("PayPal render failed", error);
+    });
+}
 
 type Plan = {
   name: string;
@@ -41,12 +104,37 @@ const plans: Plan[] = [
 ];
 
 export default function PricingPage(): JSX.Element {
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (window.paypal) {
+        renderPaypalSubscriptionButton();
+        window.clearInterval(timer);
+      }
+    }, 250);
+
+    if (window.paypal) {
+      renderPaypalSubscriptionButton();
+    }
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, []);
+
   return (
     <>
       <Head>
         <title>Pricing | EU Freelancer Invoice Generator</title>
         <meta name="description" content="Choose a plan for EU Freelancer Invoice Generator" />
       </Head>
+      <Script
+        src={`https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription`}
+        strategy="afterInteractive"
+        data-sdk-integration-source="button-factory"
+        onLoad={() => {
+          renderPaypalSubscriptionButton();
+        }}
+      />
 
       <main className="mx-auto min-h-screen max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between gap-4">
@@ -102,6 +190,15 @@ export default function PricingPage(): JSX.Element {
                   >
                     {plan.cta}
                   </a>
+                )}
+
+                {plan.name === "Pro" && (
+                  <div className="mt-5 rounded-lg border border-amber-300/70 bg-amber-50 p-3 dark:border-amber-600/50 dark:bg-amber-950/40">
+                    <p className="mb-2 text-xs font-medium text-amber-900 dark:text-amber-200">
+                      Direct PayPal subscription button
+                    </p>
+                    <div id={paypalContainerId} />
+                  </div>
                 )}
               </article>
             );
