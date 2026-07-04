@@ -19,6 +19,19 @@ NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
 NEXT_PUBLIC_PAYPAL_PLAN_ID=your_subscription_plan_id
 ```
 
+## Current Plan Configuration
+
+- Plan type: Fixed pricing
+- Plan name: EU Freelancer Invoice Generator
+- Plan ID: P-39E65640L2122282RNJEQJAY
+- Setup fee: 0.00 EUR
+- Billing: every 1 month
+- Amount: 5.00 EUR
+- Billing cycles: unlimited
+- Taxes: none
+- Pause after missed cycles: 0
+- Auto-bill outstanding: enabled
+
 ## App Integration
 
 - Pricing page is available at /pricing.
