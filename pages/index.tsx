@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { DashboardStats } from "../components/DashboardStats";
@@ -236,6 +237,12 @@ export default function Home(): JSX.Element {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/pricing"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            >
+              Pricing
+            </Link>
             <select
               className="input"
               value={language}
