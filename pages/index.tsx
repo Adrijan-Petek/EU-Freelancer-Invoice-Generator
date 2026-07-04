@@ -1,5 +1,7 @@
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { DashboardStats } from "../components/DashboardStats";
@@ -43,6 +45,7 @@ function createEmptyDraft(language: Language): InvoiceInput {
 }
 
 export default function Home(): JSX.Element {
+  const { basePath } = useRouter();
   const [language, setLanguage] = useState<Language>("en");
   const [draft, setDraft] = useState<InvoiceInput>(() => createEmptyDraft("en"));
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
@@ -310,6 +313,13 @@ export default function Home(): JSX.Element {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
+            <Image
+              src={`${basePath}/logo.png`}
+              alt="EU Freelancer Invoice Generator logo"
+              width={192}
+              height={48}
+              className="mb-3 h-12 w-auto rounded-lg border border-slate-200 bg-white/70 p-1 dark:border-slate-700 dark:bg-slate-900/70"
+            />
             <h1 className="font-[var(--font-display)] text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
               {labels.title}
             </h1>

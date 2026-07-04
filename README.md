@@ -1,5 +1,7 @@
 # EU Freelancer Invoice Generator
 
+![EU Freelancer Invoice Generator logo](logo.png)
+
 Professional EU-compliant invoicing for freelancers, developers, designers, and solo businesses.
 
 Create invoices in seconds, apply the correct VAT logic automatically, export PDF invoices, and track revenue from a clean dashboard.
