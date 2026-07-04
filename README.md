@@ -1,6 +1,6 @@
 # EU Freelancer Invoice Generator
 
-![EU Freelancer Invoice Generator logo](logo.png)
+![EU Freelancer Invoice Generator logo](public/logo.png)
 
 Professional EU-compliant invoicing for freelancers, developers, designers, and solo businesses.
 
